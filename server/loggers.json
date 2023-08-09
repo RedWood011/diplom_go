@@ -1,0 +1,21 @@
+
+{"time":"2023-08-09T05:57:43.304119+03:00","level":"INFO","msg":"gRPC server listening:","!BADKEY":{"IP":"::","Port":5050,"Zone":""}}
+{"time":"2023-08-09T06:07:22.367042+03:00","level":"INFO","msg":"gRPC server listening:","!BADKEY":{"IP":"::","Port":5050,"Zone":""}}
+{"time":"2023-08-09T07:50:59.625182+03:00","level":"INFO","msg":"gRPC server listening:","!BADKEY":{"IP":"::","Port":5050,"Zone":""}}
+{"time":"2023-08-09T08:44:14.992226+03:00","level":"INFO","msg":"UserID:","":"invalid login or password"}
+{"time":"2023-08-09T08:44:16.839552+03:00","level":"INFO","msg":"UserID:","":"invalid login or password"}
+{"time":"2023-08-09T09:03:24.419384+03:00","level":"INFO","msg":"gRPC server listening:","!BADKEY":{"IP":"::","Port":5050,"Zone":""}}
+{"time":"2023-08-09T09:06:46.512487+03:00","level":"INFO","msg":"gRPC server listening:","!BADKEY":{"IP":"::","Port":5050,"Zone":""}}
+{"time":"2023-08-09T09:09:03.091046+03:00","level":"INFO","msg":"gRPC server listening:","!BADKEY":{"IP":"::","Port":5050,"Zone":""}}
+{"time":"2023-08-09T09:10:35.568387+03:00","level":"INFO","msg":"gRPC server listening:","!BADKEY":{"IP":"::","Port":5050,"Zone":""}}
+{"time":"2023-08-09T09:12:40.600461+03:00","level":"INFO","msg":"gRPC server listening:","!BADKEY":{"IP":"::","Port":5050,"Zone":""}}
+{"time":"2023-08-09T09:13:59.262776+03:00","level":"INFO","msg":"gRPC server listening:","!BADKEY":{"IP":"::","Port":5050,"Zone":""}}
+{"time":"2023-08-09T09:14:22.709359+03:00","level":"INFO","msg":"gRPC server listening:","!BADKEY":{"IP":"::","Port":5050,"Zone":""}}
+{"time":"2023-08-09T09:17:56.396843+03:00","level":"INFO","msg":"gRPC server listening:","!BADKEY":{"IP":"::","Port":5050,"Zone":""}}
+{"time":"2023-08-09T09:25:00.20903+03:00","level":"INFO","msg":"gRPC server failed to listen:","!BADKEY":"listen tcp :5050: bind: address already in use"}
+{"time":"2023-08-09T09:26:01.587284+03:00","level":"INFO","msg":"gRPC server listening:","!BADKEY":{"IP":"::","Port":5050,"Zone":""}}
+{"time":"2023-08-09T09:32:27.561027+03:00","level":"INFO","msg":"gRPC server listening:","!BADKEY":{"IP":"::","Port":5050,"Zone":""}}
+{"time":"2023-08-09T09:35:17.869112+03:00","level":"INFO","msg":"gRPC server listening:","!BADKEY":{"IP":"::","Port":5050,"Zone":""}}
+{"time":"2023-08-09T09:36:10.810004+03:00","level":"INFO","msg":"gRPC server listening:","!BADKEY":{"IP":"::","Port":5050,"Zone":""}}
+{"time":"2023-08-09T09:39:36.122332+03:00","level":"INFO","msg":"gRPC server listening:","!BADKEY":{"IP":"::","Port":5050,"Zone":""}}
+{"time":"2023-08-09T09:41:36.772479+03:00","level":"INFO","msg":"gRPC server listening:","!BADKEY":{"IP":"::","Port":5050,"Zone":""}}
