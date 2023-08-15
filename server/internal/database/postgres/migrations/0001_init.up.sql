@@ -39,10 +39,9 @@ create table secrets
         references users
             on delete cascade,
     secret_data bytea,
+    secret_name bytea,
     created_at  timestamp default CURRENT_TIMESTAMP not null,
     deleted_at  timestamp,
-    secret_name bytea
+
 );
 
-alter table secrets
-    owner to qwerty;

@@ -95,6 +95,31 @@ func (s *Secret) EncryptSecret(key, nonce []byte) error {
 	return nil
 }
 
+func (s *Secret) DecryptSecretName(key, nonce []byte) error {
+	aesblock, err := aes.NewCipher(key)
+	if err != nil {
+		return err
+	}
+
+	aesgcm, err := cipher.NewGCM(aesblock)
+	if err != nil {
+		return err
+	}
+
+	decryptName, err := aesgcm.Open(nil, nonce, s.Name, nil)
+	if err != nil {
+		return err
+	}
+
+	index := strings.Index(string(decryptName), "|")
+	if index != -1 {
+		name := string(decryptName)[index+1:]
+		s.Name = []byte(name)
+	}
+
+	return nil
+}
+
 func (s *Secret) DecryptSecret(key, nonce []byte) error {
 	aesblock, err := aes.NewCipher(key)
 	if err != nil {
@@ -124,7 +149,7 @@ func (s *Secret) DecryptSecret(key, nonce []byte) error {
 		name := string(decryptName)[index+1:]
 		s.Name = []byte(name)
 	}
-
+	s.TypeSecret = typeSecret
 	switch typeSecret {
 	case "text":
 		s.TextFile = s.Data

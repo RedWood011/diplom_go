@@ -8,5 +8,5 @@ server:
 
 token:
   secret-key: secret-key
-  access-time-live-token: 5s
+  access-time-live-token: 5m
   user-key: user-key

@@ -20,7 +20,7 @@ type Config struct {
 	} `yaml:"server"`
 	TokenConfig struct {
 		SecretKey           string        `yaml:"secret-key"`
-		AccessTimeLiveToken time.Duration `yaml:"access-time-live-token""`
+		AccessTimeLiveToken time.Duration `yaml:"access-time-live-token"`
 	} `yaml:"token"`
 }
 

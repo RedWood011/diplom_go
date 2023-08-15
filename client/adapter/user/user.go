@@ -5,27 +5,27 @@ import (
 	"errors"
 
 	"RedWood011/client/entity"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-func NewUserAdapter(address string) *UserAdapter {
-	return &UserAdapter{
+func NewUserAdapter(address string) *Adapter {
+	return &Adapter{
 		address: address,
 	}
 }
 
-type UserClient struct {
+type Client struct {
 	UsersClient
 	closeFunc func() error
 }
 
-type UserAdapter struct {
+type Adapter struct {
 	address string
 }
 
-// Register функция регистрации пользователя
-func (u *UserAdapter) RegisterUser(ctx context.Context, user entity.User) (string, string, error) {
+func (u *Adapter) RegisterUser(ctx context.Context, user entity.User) (string, string, error) {
 	client, err := u.getConn()
 	if err != nil {
 		return "", "", err
@@ -46,8 +46,7 @@ func (u *UserAdapter) RegisterUser(ctx context.Context, user entity.User) (strin
 	return "", "", errors.New(response.Status)
 }
 
-// Auth функция авторизации пользователя
-func (u *UserAdapter) AuthUser(ctx context.Context, user entity.User) (string, string, error) {
+func (u *Adapter) AuthUser(ctx context.Context, user entity.User) (string, string, error) {
 	client, err := u.getConn()
 	if err != nil {
 		return "", "", err
@@ -66,12 +65,12 @@ func (u *UserAdapter) AuthUser(ctx context.Context, user entity.User) (string, s
 	return "", "", errors.New(response.Status)
 }
 
-func (u *UserAdapter) getConn() (*UserClient, error) {
+func (u *Adapter) getConn() (*Client, error) {
 	conn, err := grpc.Dial(u.address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}
 	cl := NewUsersClient(conn)
 
-	return &UserClient{cl, conn.Close}, nil
+	return &Client{cl, conn.Close}, nil
 }

@@ -2,12 +2,12 @@ package user
 
 import adapter "RedWood011/client/adapter/user"
 
-func NewUserService(adapter *adapter.UserAdapter) *UserServise {
-	return &UserServise{
+func NewUserService(adapter *adapter.Adapter) *Service {
+	return &Service{
 		userAdapter: adapter,
 	}
 }
 
-type UserServise struct {
-	userAdapter *adapter.UserAdapter
+type Service struct {
+	userAdapter *adapter.Adapter
 }

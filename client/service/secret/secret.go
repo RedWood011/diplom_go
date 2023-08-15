@@ -2,13 +2,13 @@ package secret
 
 import adapter "RedWood011/client/adapter/secret"
 
-func NewSecretService(adapter *adapter.SecretAdapter) *SecretService {
-	return &SecretService{
+func NewSecretService(adapter *adapter.Adapter) *Service {
+	return &Service{
 		secretAdapter: adapter,
 	}
 }
 
-// SecretHandler струкутра обработчика секретов
-type SecretService struct {
-	secretAdapter *adapter.SecretAdapter
+type Service struct {
+	secretAdapter *adapter.Adapter
+	AccessToken   string
 }

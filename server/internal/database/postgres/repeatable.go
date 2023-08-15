@@ -10,7 +10,7 @@ func doWithTries(fn func() error, attemtps int, delay time.Duration) (err error)
 
 			continue
 		}
-		return nil
+		return err
 	}
-	return
+	return nil
 }

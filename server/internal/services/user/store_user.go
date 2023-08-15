@@ -7,7 +7,7 @@ import (
 	"RedWood011/server/internal/entity"
 )
 
-func (us *UserService) CreateUser(ctx context.Context, user entity.User) error {
+func (us *Service) CreateUser(ctx context.Context, user entity.User) error {
 	if !user.IsValidPassword() || !user.IsValidLogin() {
 		return apperrors.ErrAuth
 	}
@@ -20,7 +20,7 @@ func (us *UserService) CreateUser(ctx context.Context, user entity.User) error {
 	return us.db.SaveUser(ctx, user)
 }
 
-func (us *UserService) AuthUser(ctx context.Context, user entity.User) (string, error) {
+func (us *Service) AuthUser(ctx context.Context, user entity.User) (string, error) {
 	if !user.IsValidPassword() || !user.IsValidLogin() {
 		return "", apperrors.ErrAuth
 	}
@@ -37,6 +37,6 @@ func (us *UserService) AuthUser(ctx context.Context, user entity.User) (string, 
 	return existUser.ID, nil
 }
 
-func (us *UserService) DeleteUser(ctx context.Context, login string) error {
+func (us *Service) DeleteUser(ctx context.Context, login string) error {
 	return us.db.DeleteUser(ctx, login)
 }

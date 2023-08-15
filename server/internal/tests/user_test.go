@@ -1,4 +1,4 @@
-package tests
+package tests_test
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 	"RedWood011/server/internal/database/postgres"
 	"RedWood011/server/internal/services/user"
 	usergrpc "RedWood011/server/internal/transport/grpc/user"
+
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/exp/slog"
 )
@@ -63,7 +64,6 @@ func TestCreateUser(t *testing.T) {
 			assert.Equal(t, tt.want.Status, got.Status)
 		})
 	}
-
 }
 
 func TestAuthUser(t *testing.T) {
@@ -113,7 +113,6 @@ func TestAuthUser(t *testing.T) {
 			assert.Equal(t, tt.want.Status, got.Status)
 		})
 	}
-
 }
 
 func TestDeleteUser(t *testing.T) {
@@ -140,5 +139,4 @@ func TestDeleteUser(t *testing.T) {
 	response, err := grpcUsers.DeleteUser(ctx, requestDeleted)
 	assert.NoError(t, err)
 	assert.Equal(t, "ok", response.Status)
-
 }

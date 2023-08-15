@@ -2,9 +2,11 @@ package postgres
 
 import (
 	"context"
+	"errors"
 
 	"RedWood011/server/internal/apperrors"
 	"RedWood011/server/internal/entity"
+
 	"github.com/jackc/pgx/v4"
 )
 
@@ -45,12 +47,12 @@ func (r *Repository) ListSecrets(ctx context.Context, userID string) ([]entity.S
 }
 
 func (r *Repository) GetSecret(ctx context.Context, secret entity.Secret) (entity.Secret, error) {
-	const query = `SELECT id, user_id,secret_data FROM secrets WHERE id = $1 AND user_id=$2 AND deleted_at IS NULL`
+	const query = `SELECT id, user_id,secret_data,secret_name FROM secrets WHERE id = $1 AND user_id=$2 AND deleted_at IS NULL`
 
 	var s entity.Secret
 	res := r.db.QueryRow(ctx, query, secret.ID, secret.UserID)
-	err := res.Scan(&secret.ID, &secret.UserID, &secret.Data)
-	if err == pgx.ErrNoRows {
+	err := res.Scan(&secret.ID, &secret.UserID, &secret.Data, &secret.Name)
+	if errors.Is(err, pgx.ErrNoRows) {
 		return entity.Secret{}, apperrors.ErrNotFound
 	}
 	if err != nil {

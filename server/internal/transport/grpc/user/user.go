@@ -6,18 +6,18 @@ import (
 	"RedWood011/server/internal/authorization"
 	"RedWood011/server/internal/config"
 	"RedWood011/server/internal/entity"
+
 	"github.com/docker/distribution/uuid"
 	"golang.org/x/exp/slog"
 )
 
-type UserService interface {
+type Service interface {
 	CreateUser(ctx context.Context, user entity.User) error
 	AuthUser(ctx context.Context, user entity.User) (string, error)
 	DeleteUser(ctx context.Context, login string) error
 }
 
-// NewGrpcUsers функция создания обраточка запросов для пользователей
-func NewGrpcUsers(userService UserService, config *config.Config, logger *slog.Logger) *GrpcUsers {
+func NewGrpcUsers(userService Service, config *config.Config, logger *slog.Logger) *GrpcUsers {
 	return &GrpcUsers{
 		userService: userService,
 		cfg:         config,
@@ -25,10 +25,9 @@ func NewGrpcUsers(userService UserService, config *config.Config, logger *slog.L
 	}
 }
 
-// GrpcUsers структура для обраточика запросов для пользователя
 type GrpcUsers struct {
 	UnimplementedUsersServer
-	userService UserService
+	userService Service
 	cfg         *config.Config
 	logger      *slog.Logger
 }
@@ -48,11 +47,16 @@ func (gh *GrpcUsers) CreateUser(ctx context.Context, in *CreateUserRequest) (*To
 		}, nil
 	}
 
-	token, err := authorization.CreateToken(userID, gh.cfg.TokenConfig.AccessTimeLiveToken, gh.cfg.TokenConfig.AccessTimeLiveToken, gh.cfg.TokenConfig.SecretKey, gh.cfg.TokenConfig.SecretKey)
+	var token *authorization.TokenDetails
+	token, err = authorization.CreateToken(userID,
+		gh.cfg.TokenConfig.AccessTimeLiveToken,
+		gh.cfg.TokenConfig.AccessTimeLiveToken,
+		gh.cfg.TokenConfig.SecretKey,
+		gh.cfg.TokenConfig.SecretKey)
 	if err != nil {
 		return &TokenResponse{
 			Status: err.Error(),
-		}, nil
+		}, err
 	}
 
 	return &TokenResponse{
@@ -62,7 +66,6 @@ func (gh *GrpcUsers) CreateUser(ctx context.Context, in *CreateUserRequest) (*To
 	}, nil
 }
 
-// AuthUser функция авторизации пользователя
 func (gh *GrpcUsers) AuthUser(ctx context.Context, in *AuthUserRequest) (*TokenResponse, error) {
 	user := entity.User{
 		Login:    in.Login,
@@ -77,7 +80,11 @@ func (gh *GrpcUsers) AuthUser(ctx context.Context, in *AuthUserRequest) (*TokenR
 		}, err
 	}
 
-	token, err := authorization.CreateToken(userID, gh.cfg.TokenConfig.AccessTimeLiveToken, gh.cfg.TokenConfig.AccessTimeLiveToken, gh.cfg.TokenConfig.SecretKey, gh.cfg.TokenConfig.SecretKey)
+	token, err := authorization.CreateToken(userID,
+		gh.cfg.TokenConfig.AccessTimeLiveToken,
+		gh.cfg.TokenConfig.AccessTimeLiveToken,
+		gh.cfg.TokenConfig.SecretKey,
+		gh.cfg.TokenConfig.SecretKey)
 	if err != nil {
 		gh.logger.Info("UserID:", userID, err.Error())
 		return &TokenResponse{

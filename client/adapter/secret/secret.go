@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	"RedWood011/client/apperrors"
 	"RedWood011/client/entity"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
@@ -12,43 +14,38 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type SecretAdapter struct {
-	address     string
-	accessToken string
+type Adapter struct {
+	address string
 }
 
-type SecretClient struct {
+type Client struct {
 	SecretsClient
 	closeFunc func() error
 }
 
-func NewSecretAdapter(address string, access string) *SecretAdapter {
-	return &SecretAdapter{
-		address:     address,
-		accessToken: access,
+func NewSecretAdapter(address string) *Adapter {
+	return &Adapter{
+		address: address,
 	}
 }
 
-func (c *SecretAdapter) GetSecret(ctx context.Context, secretID string) (entity.Secret, error) {
-	client, err := c.getConn()
+func (sa *Adapter) GetSecret(ctx context.Context, token string, secretID string) (*entity.Secret, error) {
+	client, err := sa.getConn()
 	if err != nil {
-		return entity.Secret{}, err
+		return nil, err
 	}
 
 	message := GetSecretRequest{
 		SecretId: secretID,
 	}
-	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", fmt.Sprintf("Bearer %v", c.accessToken))
+	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", fmt.Sprintf("Bearer %v", token))
 	response, err := client.GetSecret(ctx, &message)
 	if err != nil {
-		return entity.Secret{}, err
-	}
-	if err != nil {
 		statusErr, ok := status.FromError(err)
-		if ok && statusErr.Code() == codes.Unauthenticated && statusErr.Message() == "invalid token" {
-			return entity.Secret{}, fmt.Errorf("please login again\n")
+		if ok && statusErr.Code() == codes.Unauthenticated {
+			return nil, apperrors.ErrAuth
 		}
-		return entity.Secret{}, err
+		return nil, err
 	}
 
 	var secret entity.Secret
@@ -59,15 +56,15 @@ func (c *SecretAdapter) GetSecret(ctx context.Context, secretID string) (entity.
 
 	client.closeFunc()
 
-	return secret, nil
+	return &secret, nil
 }
 
-func (c *SecretAdapter) CreateSecret(ctx context.Context, secret *entity.Secret) (string, error) {
-	client, err := c.getConn()
+func (sa *Adapter) CreateSecret(ctx context.Context, token string, secret *entity.Secret) (string, error) {
+	client, err := sa.getConn()
 	if err != nil {
 		return "", err
 	}
-	md := metadata.New(map[string]string{"authorization": fmt.Sprintf("Bearer %v", c.accessToken)})
+	md := metadata.New(map[string]string{"authorization": fmt.Sprintf("Bearer %v", token)})
 	ctxNew := metadata.NewOutgoingContext(ctx, md)
 	message := CreateSecretRequest{
 		Name: secret.Name,
@@ -75,12 +72,9 @@ func (c *SecretAdapter) CreateSecret(ctx context.Context, secret *entity.Secret)
 	}
 	response, err := client.CreateSecret(ctxNew, &message)
 	if err != nil {
-		return "", err
-	}
-	if err != nil {
 		statusErr, ok := status.FromError(err)
-		if ok && statusErr.Code() == codes.Unauthenticated && statusErr.Message() == "invalid token" {
-			return "", fmt.Errorf("please login again\n")
+		if ok && statusErr.Code() == codes.Unauthenticated {
+			return "", apperrors.ErrAuth
 		}
 		return "", err
 	}
@@ -92,25 +86,22 @@ func (c *SecretAdapter) CreateSecret(ctx context.Context, secret *entity.Secret)
 	return response.SecretId, nil
 }
 
-func (c *SecretAdapter) ListSecrets(ctx context.Context) ([]entity.Secret, error) {
-	client, err := c.getConn()
+func (sa *Adapter) ListSecrets(ctx context.Context, token string) ([]entity.Secret, error) {
+	client, err := sa.getConn()
 	if err != nil {
 		return nil, err
 	}
-	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", fmt.Sprintf("Bearer %v", c.accessToken))
+	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", fmt.Sprintf("Bearer %v", token))
 	message := ListSecretsRequest{}
 	response, err := client.ListSecrets(ctx, &message)
 	if err != nil {
-		return nil, err
-	}
-	if err != nil {
 		statusErr, ok := status.FromError(err)
 		if ok && statusErr.Code() == codes.Unauthenticated && statusErr.Message() == "invalid token" {
-			return nil, fmt.Errorf("please login again\n")
+			return nil, apperrors.ErrAuth
 		}
 		return nil, err
 	}
-	var secrets []entity.Secret
+	secrets := make([]entity.Secret, 0, len(response.Data))
 	for _, secret := range response.Data {
 		secrets = append(secrets, entity.Secret{
 			ID:   secret.SecretId,
@@ -122,22 +113,19 @@ func (c *SecretAdapter) ListSecrets(ctx context.Context) ([]entity.Secret, error
 	return secrets, nil
 }
 
-func (c *SecretAdapter) DeleteSecret(ctx context.Context, secretID string) error {
-	client, err := c.getConn()
+func (sa *Adapter) DeleteSecret(ctx context.Context, token, secretID string) error {
+	client, err := sa.getConn()
 	if err != nil {
 		return err
 	}
-	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", fmt.Sprintf("Bearer %v", c.accessToken))
+	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", fmt.Sprintf("Bearer %v", token))
 	message := DeleteSecretRequest{SecretId: secretID}
 
 	response, err := client.DeleteSecret(ctx, &message)
 	if err != nil {
-		return err
-	}
-	if err != nil {
 		statusErr, ok := status.FromError(err)
 		if ok && statusErr.Code() == codes.Unauthenticated && statusErr.Message() == "invalid token" {
-			return fmt.Errorf("please login again\n")
+			return apperrors.ErrAuth
 		}
 		return err
 	}
@@ -149,12 +137,12 @@ func (c *SecretAdapter) DeleteSecret(ctx context.Context, secretID string) error
 	return nil
 }
 
-func (sa *SecretAdapter) getConn() (*SecretClient, error) {
+func (sa *Adapter) getConn() (*Client, error) {
 	conn, err := grpc.Dial(sa.address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}
 	cl := NewSecretsClient(conn)
 
-	return &SecretClient{cl, conn.Close}, nil
+	return &Client{cl, conn.Close}, nil
 }

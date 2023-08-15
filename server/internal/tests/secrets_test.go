@@ -1,4 +1,4 @@
-package tests
+package tests_test
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 	"RedWood011/server/internal/services/user"
 	secretgrpc "RedWood011/server/internal/transport/grpc/secret"
 	usergrpc "RedWood011/server/internal/transport/grpc/user"
-	"github.com/grpc-ecosystem/go-grpc-middleware/util/metautils"
+
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/exp/slog"
 	"google.golang.org/grpc/metadata"
@@ -40,10 +40,10 @@ func TestCreateSecret(t *testing.T) {
 	assert.Equal(t, "created", got.Status)
 	md := metadata.New(map[string]string{"authorization": fmt.Sprintf("Bearer %v", got.AccessToken)})
 	ctx = metadata.NewIncomingContext(context.Background(), md)
-	userID := metautils.ExtractIncoming(ctx).Get("authorization")
+	var userID string
 	userID, err = authorization.TokenValid(ctx, cfg.TokenConfig.SecretKey)
 	assert.NoError(t, err)
-	ctx = context.WithValue(ctx, "userID", userID)
+	ctx = context.WithValue(ctx, authorization.UserKey("userID"), authorization.UserGUID(userID).String())
 	assert.NoError(t, err)
 
 	requestSecret := &secretgrpc.CreateSecretRequest{
@@ -76,10 +76,10 @@ func TestListSecret(t *testing.T) {
 	assert.Equal(t, "created", got.Status)
 	md := metadata.New(map[string]string{"authorization": fmt.Sprintf("Bearer %v", got.AccessToken)})
 	ctx = metadata.NewIncomingContext(context.Background(), md)
-	userID := metautils.ExtractIncoming(ctx).Get("authorization")
+	var userID string
 	userID, err = authorization.TokenValid(ctx, cfg.TokenConfig.SecretKey)
 	assert.NoError(t, err)
-	ctx = context.WithValue(ctx, "userID", userID)
+	ctx = context.WithValue(ctx, authorization.UserKey("userID"), authorization.UserGUID(userID).String())
 	assert.NoError(t, err)
 
 	requestSecret := &secretgrpc.CreateSecretRequest{
@@ -117,10 +117,10 @@ func TestGetSecret(t *testing.T) {
 	assert.Equal(t, "created", got.Status)
 	md := metadata.New(map[string]string{"authorization": fmt.Sprintf("Bearer %v", got.AccessToken)})
 	ctx = metadata.NewIncomingContext(context.Background(), md)
-	userID := metautils.ExtractIncoming(ctx).Get("authorization")
+	var userID string
 	userID, err = authorization.TokenValid(ctx, cfg.TokenConfig.SecretKey)
 	assert.NoError(t, err)
-	ctx = context.WithValue(ctx, "userID", userID)
+	ctx = context.WithValue(ctx, authorization.UserKey("userID"), authorization.UserGUID(userID).String())
 	assert.NoError(t, err)
 
 	requestSecret := &secretgrpc.CreateSecretRequest{
@@ -161,10 +161,10 @@ func TestDeleteSecret(t *testing.T) {
 	assert.Equal(t, "created", got.Status)
 	md := metadata.New(map[string]string{"authorization": fmt.Sprintf("Bearer %v", got.AccessToken)})
 	ctx = metadata.NewIncomingContext(context.Background(), md)
-	userID := metautils.ExtractIncoming(ctx).Get("authorization")
+	var userID string
 	userID, err = authorization.TokenValid(ctx, cfg.TokenConfig.SecretKey)
 	assert.NoError(t, err)
-	ctx = context.WithValue(ctx, "userID", userID)
+	ctx = context.WithValue(ctx, authorization.UserKey("userID"), authorization.UserGUID(userID).String())
 	assert.NoError(t, err)
 
 	requestSecret := &secretgrpc.CreateSecretRequest{
@@ -181,5 +181,4 @@ func TestDeleteSecret(t *testing.T) {
 	delSecret, err := grpcSecrets.DeleteSecret(ctx, requestGetSecret)
 	assert.NoError(t, err)
 	assert.Equal(t, "ok", delSecret.Status)
-
 }

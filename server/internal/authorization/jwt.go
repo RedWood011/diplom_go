@@ -26,7 +26,7 @@ func CreateToken(userID string, accessTokenLive time.Duration, refreshTokenLive 
 	atClaims := jwt.MapClaims{}
 	atClaims["authorized"] = true
 	atClaims["user_id"] = userID
-	atClaims["exp"] = accessTokenLive
+	atClaims["exp"] = time.Now().Add(accessTokenLive).Unix()
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
 
 	accessToken, err := at.SignedString([]byte(accessTokenSecret))
@@ -77,7 +77,8 @@ func TokenValid(ctx context.Context, accessSecret string) (string, error) {
 func extractToken(ctx context.Context) string {
 	token := metautils.ExtractIncoming(ctx).Get("authorization")
 	array := strings.Split(token, " ")
-	if len(array) == 2 {
+	const typeAndToken = 2
+	if len(array) == typeAndToken {
 		return array[1]
 	}
 	return ""

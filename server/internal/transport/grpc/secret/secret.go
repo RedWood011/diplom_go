@@ -3,13 +3,15 @@ package secret
 import (
 	"context"
 
+	"RedWood011/server/internal/authorization"
 	"RedWood011/server/internal/config"
 	"RedWood011/server/internal/entity"
+
 	"github.com/docker/distribution/uuid"
 	"golang.org/x/exp/slog"
 )
 
-type SecretService interface {
+type Service interface {
 	CreateSecret(ctx context.Context, secret *entity.Secret) error
 	ListSecrets(ctx context.Context, userID string) ([]entity.Secret, error)
 	DeleteSecrets(ctx context.Context, secretID string, userID string) error
@@ -18,12 +20,12 @@ type SecretService interface {
 
 type GrpcSecrets struct {
 	UnimplementedSecretsServer
-	secretService SecretService
+	secretService Service
 	cfg           *config.Config
 	logger        *slog.Logger
 }
 
-func NewGrpcSecrets(secret SecretService, cfg *config.Config, log *slog.Logger) *GrpcSecrets {
+func NewGrpcSecrets(secret Service, cfg *config.Config, log *slog.Logger) *GrpcSecrets {
 	return &GrpcSecrets{
 		secretService: secret,
 		cfg:           cfg,
@@ -32,7 +34,9 @@ func NewGrpcSecrets(secret SecretService, cfg *config.Config, log *slog.Logger) 
 }
 
 func (g *GrpcSecrets) CreateSecret(ctx context.Context, in *CreateSecretRequest) (*CreateSecretResponse, error) {
-	userID := ctx.Value("userID").(string)
+	var id authorization.UserKey = "userID"
+	usID := ctx.Value(id).(authorization.UserGUID)
+	userID := usID.String()
 	secret := entity.Secret{
 		ID:     uuid.Generate().String(),
 		UserID: userID,
@@ -54,7 +58,9 @@ func (g *GrpcSecrets) CreateSecret(ctx context.Context, in *CreateSecretRequest)
 }
 
 func (g *GrpcSecrets) ListSecrets(ctx context.Context, in *ListSecretsRequest) (*ListSecretsResponse, error) {
-	userID := ctx.Value("userID").(string)
+	var id authorization.UserKey = "userID"
+	usID := ctx.Value(id).(authorization.UserGUID)
+	userID := usID.String()
 	secrets, err := g.secretService.ListSecrets(ctx, userID)
 	if err != nil {
 		g.logger.Info("Error list Secrets UserID:", userID, err.Error())
@@ -78,22 +84,26 @@ func (g *GrpcSecrets) ListSecrets(ctx context.Context, in *ListSecretsRequest) (
 }
 
 func (g *GrpcSecrets) DeleteSecret(ctx context.Context, in *DeleteSecretRequest) (*DeleteSecretResponse, error) {
-	userID := ctx.Value("userID").(string)
+	var id authorization.UserKey = "userID"
+	usID := ctx.Value(id).(authorization.UserGUID)
+	userID := usID.String()
 	err := g.secretService.DeleteSecrets(ctx, in.SecretId, userID)
 	if err != nil {
 		g.logger.Info("Error delete Secrets UserID:", userID, err.Error())
 		return &DeleteSecretResponse{
 			Status: err.Error(),
 		}, nil
-
 	}
+
 	return &DeleteSecretResponse{
 		Status: "ok",
 	}, nil
 }
 
 func (g *GrpcSecrets) GetSecret(ctx context.Context, in *GetSecretRequest) (*GetSecretResponse, error) {
-	userID := ctx.Value("userID").(string)
+	var id authorization.UserKey = "userID"
+	usID := ctx.Value(id).(authorization.UserGUID)
+	userID := usID.String()
 	secret, err := g.secretService.GetSecret(ctx, entity.Secret{
 		ID:     in.SecretId,
 		UserID: userID,

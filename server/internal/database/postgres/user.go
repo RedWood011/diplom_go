@@ -2,9 +2,11 @@ package postgres
 
 import (
 	"context"
+	"errors"
 
 	"RedWood011/server/internal/apperrors"
 	"RedWood011/server/internal/entity"
+
 	"github.com/jackc/pgx/v4"
 )
 
@@ -20,7 +22,7 @@ func (r *Repository) GetUser(ctx context.Context, user entity.User) (entity.User
 
 	query := r.db.QueryRow(ctx, sqlCheckUser, user.Login)
 	err := query.Scan(&res.ID, &res.Login, &res.Password)
-	if err == pgx.ErrNoRows {
+	if errors.Is(err, pgx.ErrNoRows) {
 		return entity.User{}, apperrors.ErrNotFound
 	}
 
@@ -41,7 +43,6 @@ func (r *Repository) SaveUser(ctx context.Context, user entity.User) error {
 	return err
 }
 
-// DeleteUser функция удаления пользователя
 func (r *Repository) DeleteUser(ctx context.Context, login string) error {
 	const query = `UPDATE users SET  deleted_at = current_timestamp WHERE login = $1`
 	_, err := r.db.Exec(ctx, query, login)
