@@ -3,7 +3,6 @@ package authorization
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -19,7 +18,7 @@ type TokenDetails struct {
 	RtExpires    int64
 }
 
-func CreateToken(userID string, accessTokenLive time.Duration, refreshTokenLive time.Duration,
+func CreateToken(userID string, accessTokenLive time.Duration, _ time.Duration,
 	accessTokenSecret string, refreshTokenSecret string) (*TokenDetails, error) {
 	td := &TokenDetails{}
 
@@ -82,34 +81,4 @@ func extractToken(ctx context.Context) string {
 		return array[1]
 	}
 	return ""
-}
-
-func RefreshToken(refresh string, accessTokenLive time.Duration, refreshTokenLive time.Duration,
-	accessSecret string, refreshSecret string) (*TokenDetails, error) {
-	token, err := jwt.Parse(refresh, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("signature is invalid: %v", token.Header["alg"])
-		}
-		return []byte("jdnfksdmfksd"), nil
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	if !token.Valid {
-		return nil, err
-	}
-
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if ok && token.Valid {
-		userID := claims["user_id"].(string)
-		ts, createErr := CreateToken(userID, accessTokenLive, refreshTokenLive,
-			accessSecret, refreshSecret)
-		if createErr != nil {
-			return nil, err
-		}
-		return ts, nil
-	}
-
-	return nil, errors.New("refresh expired")
 }
