@@ -31,7 +31,7 @@ jobs:
                   go-version: '1.20'
                   check-latest: true
             - name: Start Postgres
-              run: docker-compose up -d postgres
+              run: docker-compose up -d test_bd
             - name: Wait for Postgres to start
               run: docker-compose exec postgres sh -c 'while ! pg_isready; do sleep 1; done;'
             - name: Run tests integration
