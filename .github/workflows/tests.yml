@@ -6,11 +6,6 @@ on:
     pull_request:
         - main
 
-permissions:
-    contents: read
-    # Optional: allow read access to pull request. Use with `only-new-issues` option.
-    # pull-requests: read
-
 jobs:
     test:
         runs-on: macos-latest
