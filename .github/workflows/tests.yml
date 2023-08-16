@@ -8,21 +8,6 @@ on:
 jobs:
     test:
         runs-on: ubuntu-latest
-        services:
-          postgres:
-            image: postgres:latest
-            env:
-              POSTGRES_USER: qwerty
-              POSTGRES_PASSWORD: qwerty
-              POSTGRES_DB: postgres
-            ports:
-              - 5438:5432
-            options: >-
-              --health-cmd pg_isready
-              --health-interval 10s
-              --health-timeout 5s
-              --health-retries 5
-
 
         steps:
             - uses: actions/checkout@v3
