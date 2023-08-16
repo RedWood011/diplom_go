@@ -23,8 +23,7 @@ jobs:
               run: |
                 go run ./server main.go &sleep 5 
                 go test -v ./client/tests
-                kill $(lsof -t -i :5050)
-                exit 1
+             
 
 
 
