@@ -20,7 +20,9 @@ jobs:
             - name: Run tests integration
               run: go test -v ./server/...
             - name: Run E2E tests server-client
-              run: go run ./server main.go && go test -v ./client/..
+              run: go run ./server main.go && go test -v ./client/.. exit 1
+
+
 
 
 
