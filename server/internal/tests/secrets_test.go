@@ -43,7 +43,7 @@ func TestCreateSecret(t *testing.T) {
 	var userID string
 	userID, err = authorization.TokenValid(ctx, cfg.TokenConfig.SecretKey)
 	assert.NoError(t, err)
-	ctx = context.WithValue(ctx, authorization.UserKey("userID"), authorization.UserGUID(userID).String())
+	ctx = context.WithValue(ctx, authorization.UserKey("userID"), authorization.UserGUID(userID))
 	assert.NoError(t, err)
 
 	requestSecret := &secretgrpc.CreateSecretRequest{
@@ -79,7 +79,7 @@ func TestListSecret(t *testing.T) {
 	var userID string
 	userID, err = authorization.TokenValid(ctx, cfg.TokenConfig.SecretKey)
 	assert.NoError(t, err)
-	ctx = context.WithValue(ctx, authorization.UserKey("userID"), authorization.UserGUID(userID).String())
+	ctx = context.WithValue(ctx, authorization.UserKey("userID"), authorization.UserGUID(userID))
 	assert.NoError(t, err)
 
 	requestSecret := &secretgrpc.CreateSecretRequest{
@@ -120,7 +120,7 @@ func TestGetSecret(t *testing.T) {
 	var userID string
 	userID, err = authorization.TokenValid(ctx, cfg.TokenConfig.SecretKey)
 	assert.NoError(t, err)
-	ctx = context.WithValue(ctx, authorization.UserKey("userID"), authorization.UserGUID(userID).String())
+	ctx = context.WithValue(ctx, authorization.UserKey("userID"), authorization.UserGUID(userID))
 	assert.NoError(t, err)
 
 	requestSecret := &secretgrpc.CreateSecretRequest{
@@ -164,7 +164,7 @@ func TestDeleteSecret(t *testing.T) {
 	var userID string
 	userID, err = authorization.TokenValid(ctx, cfg.TokenConfig.SecretKey)
 	assert.NoError(t, err)
-	ctx = context.WithValue(ctx, authorization.UserKey("userID"), authorization.UserGUID(userID).String())
+	ctx = context.WithValue(ctx, authorization.UserKey("userID"), authorization.UserGUID(userID))
 	assert.NoError(t, err)
 
 	requestSecret := &secretgrpc.CreateSecretRequest{
