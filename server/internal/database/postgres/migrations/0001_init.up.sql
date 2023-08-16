@@ -27,7 +27,6 @@ CREATE TABLE IF NOT EXISTS  secrets
     secret_data bytea,
     secret_name bytea,
     created_at  timestamp default CURRENT_TIMESTAMP not null,
-    deleted_at  timestamp,
-
+    deleted_at  timestamp
 );
 
