@@ -1,23 +1,12 @@
 
-create table if not exists schema_migrations
-(
-    version bigint  not null,
-    dirty   boolean not null,
-    primary key (version)
-    );
-
--- auto-generated definition
-create table schema_migrations
+CREATE TABLE IF NOT EXISTS schema_migrations
 (
     version bigint  not null
         primary key,
     dirty   boolean not null
 );
 
-alter table schema_migrations
-    owner to qwerty;
-
-create table users
+CREATE TABLE IF NOT EXISTS users
 (
     id         uuid                                not null
         primary key,
@@ -28,10 +17,7 @@ create table users
     deleted_at timestamp
 );
 
-alter table users
-    owner to qwerty;
-
-create table secrets
+CREATE TABLE IF NOT EXISTS  secrets
 (
     id          uuid                                not null
         primary key,
